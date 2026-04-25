@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💎 Diamond Price Predictor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💎 Diamond Price Predictor</div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#predict" class="nav-link">Predict</a></li>
+                <li><a href="#history" class="nav-link">History</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Discover Your Diamond's True Value</h1>
+            <p>Accurate AI-powered price prediction for diamonds</p>
+            <button class="cta-button" onclick="scrollToSection('predict')">Get Started</button>
+        </div>
+    </section>
+
+    <!-- Prediction Section -->
+    <section id="predict" class="container">
+        <h2>Diamond Price Predictor</h2>
+        <div class="prediction-wrapper">
+            <form id="predictionForm" class="form-container">
+                <div class="form-grid">
+                    <!-- Carat -->
+                    <div class="form-group">
+                        <label for="carat">Carat Weight *</label>
+                        <input type="number" id="carat" name="carat" min="0.2" max="5.0" step="0.1" value="1.0" required>
+                        <small>0.2 - 5.0</small>
+                    </div>
+
+                    <!-- Depth -->
+                    <div class="form-group">
+                        <label for="depth">Depth % *</label>
+                        <input type="number" id="depth" name="depth" min="40" max="80" step="0.1" value="60" required>
+                        <small>40 - 80</small>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="form-group">
+                        <label for="table">Table % *</label>
+                        <input type="number" id="table" name="table" min="40" max="95" step="0.1" value="57" required>
+                        <small>40 - 95</small>
+                    </div>
+
+                    <!-- Length X -->
+                    <div class="form-group">
+                        <label for="x">Length (x) mm *</label>
+                        <input type="number" id="x" name="x" min="3" max="11" step="0.1" value="6.0" required>
+                        <small>3 - 11</small>
+                    </div>
+
+                    <!-- Width Y -->
+                    <div class="form-group">
+                        <label for="y">Width (y) mm *</label>
+                        <input type="number" id="y" name="y" min="3" max="11" step="0.1" value="6.0" required>
+                        <small>3 - 11</small>
+                    </div>
+
+                    <!-- Depth Z -->
+                    <div class="form-group">
+                        <label for="z">Depth (z) mm *</label>
+                        <input type="number" id="z" name="z" min="2" max="7" step="0.1" value="4.0" required>
+                        <small>2 - 7</small>
+                    </div>
+
+                    <!-- Cut -->
+                    <div class="form-group">
+                        <label for="cut">Cut Quality *</label>
+                        <select id="cut" name="cut" required>
+                            <option value="Fair">Fair</option>
+                            <option value="Good">Good</option>
+                            <option value="Very Good">Very Good</option>
+                            <option value="Premium">Premium</option>
+                            <option value="Ideal" selected>Ideal</option>
+                        </select>
+                    </div>
+
+                    <!-- Color -->
+                    <div class="form-group">
+                        <label for="color">Color Grade *</label>
+                        <select id="color" name="color" required>
+                            <option value="D">D (Colorless)</option>
+                            <option value="E">E (Colorless)</option>
+                            <option value="F">F (Colorless)</option>
+                            <option value="G" selected>G (Near Colorless)</option>
+                            <option value="H">H (Near Colorless)</option>
+                            <option value="I">I (Near Colorless)</option>
+                            <option value="J">J (Slightly Colored)</option>
+                        </select>
+                    </div>
+
+                    <!-- Clarity -->
+                    <div class="form-group">
+                        <label for="clarity">Clarity Grade *</label>
+                        <select id="clarity" name="clarity" required>
+                            <option value="IF">IF (Internally Flawless)</option>
+                            <option value="VVS1">VVS1 (Very Very Slightly Included)</option>
+                            <option value="VVS2">VVS2 (Very Very Slightly Included)</option>
+                            <option value="VS1">VS1 (Very Slightly Included)</option>
+                            <option value="VS2">VS2 (Very Slightly Included)</option>
+                            <option value="SI1" selected>SI1 (Slightly Included)</option>
+                            <option value="SI2">SI2 (Slightly Included)</option>
+                            <option value="I1">I1 (Included)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-button">Predict Price</button>
+            </form>
+
+            <!-- Result Section -->
+            <div id="resultSection" class="result-section hidden">
+                <div class="result-card">
+                    <h3>Prediction Result</h3>
+                    <div class="result-price">
+                        <span class="price-label">Estimated Price:</span>
+                        <span class="price-value" id="predictedPrice">$0.00</span>
+                    </div>
+                    <div class="result-details" id="resultDetails"></div>
+                    <button class="reset-button" onclick="resetForm()">New Prediction</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- History Section -->
+    <section id="history" class="container">
+        <h2>Prediction History</h2>
+        <div class="history-container">
+            <div id="historyList" class="history-list">
+                <p class="empty-message">No predictions yet. Make your first prediction above!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="container about-section">
+        <h2>About This Project</h2>
+        <div class="about-content">
+            <div class="about-card">
+                <h3>🤖 How It Works</h3>
+                <p>Our machine learning model has been trained on thousands of diamond transactions to predict accurate market prices based on the 4Cs (Cut, Color, Clarity, Carat) and physical dimensions.</p>
+            </div>
+            <div class="about-card">
+                <h3>📊 Data Science</h3>
+                <p>The model uses advanced regression techniques to identify price patterns. Results are based on historical market data and may vary with current market conditions.</p>
+            </div>
+            <div class="about-card">
+                <h3>💡 Tips for Best Accuracy</h3>
+                <ul>
+                    <li>Ensure all measurements are precise</li>
+                    <li>Use certified grading reports</li>
+                    <li>Compare results with multiple sources</li>
+                    <li>Market prices fluctuate regularly</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Diamond Price Predictor. All rights reserved.</p>
+            <p>Powered by Machine Learning | Built with FastAPI & React</p>
+        </div>
+    </footer>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner hidden"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
