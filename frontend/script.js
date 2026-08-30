@@ -1,5 +1,7 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = (window.location.protocol.startsWith('http') && window.location.port !== '5500' && window.location.port !== '5501' && window.location.port !== '3000')
+    ? window.location.origin
+    : 'http://localhost:8000';
 
 // ============================================
 // FORM SUBMISSION
