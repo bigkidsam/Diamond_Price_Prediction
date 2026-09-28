@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #FAFAF8;
+    color: #1A1C20;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, .luxury-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Glassmorphism Luxury Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(229, 232, 237, 0.8);
+}
+
+.glass-panel-dark {
+  background: rgba(18, 19, 22, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(197, 160, 89, 0.2);
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #EAD7B2 0%, #C5A059 50%, #94712D 100%);
+}
+
+.gold-text-gradient {
+  background: linear-gradient(135deg, #D4AF57 0%, #C5A059 40%, #8E6B2C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.diamond-blue-gradient {
+  background: linear-gradient(135deg, #F4F8FA 0%, #E8F1F6 100%);
+}
+
+/* Custom Range Slider */
+input[type=range] {
+  accent-color: #C5A059;
+}
+
+/* Luxury Sparkle Animation */
+@keyframes luxury-shimmer {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(200%) rotate(45deg); }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    rgba(255, 255, 255, 0) 20%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 80%
+  );
+  transform: rotate(30deg);
+  animation: luxury-shimmer 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Print Styling for Diamond Appraisal Report */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .report-print-container {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+}

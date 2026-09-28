@@ -1,0 +1,14 @@
+{
+  "name": "diamond-price-prediction",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Diamond Price Prediction Full-Stack Application (FastAPI Backend + React Frontend)",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "server": "backend\\venv\\Scripts\\python.exe -m uvicorn main:app --app-dir backend --reload --port 8000",
+    "backend": "backend\\venv\\Scripts\\python.exe -m uvicorn main:app --app-dir backend --reload --port 8000",
+    "frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npx --yes concurrently -n \"backend,frontend\" -c \"cyan,magenta\" \"npm run server\" \"npm run dev\""
+  }
+}
