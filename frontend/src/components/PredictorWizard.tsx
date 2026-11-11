@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  HelpCircle, 
-  ChevronRight, 
-  ChevronLeft, 
-  Upload, 
-  X, 
-  Check, 
-  Shield, 
-  AlertCircle, 
-  Layers, 
-  CheckCircle2, 
-  Info, 
-  Gem, 
-  Maximize2 
+import {
+  Sparkles,
+  HelpCircle,
+  ChevronRight,
+  ChevronLeft,
+  Upload,
+  X,
+  Check,
+  Shield,
+  AlertCircle,
+  Layers,
+  CheckCircle2,
+  Info,
+  Gem,
+  Maximize2
 } from 'lucide-react';
-import { 
-  DiamondInput, 
-  DiamondShape, 
-  CutQuality, 
-  ColorGrade, 
-  ClarityGrade, 
-  PolishGrade, 
-  SymmetryGrade, 
-  FluorescenceGrade, 
-  DiamondOrigin, 
-  CertificationLab 
+import {
+  DiamondInput,
+  DiamondShape,
+  CutQuality,
+  ColorGrade,
+  ClarityGrade,
+  PolishGrade,
+  SymmetryGrade,
+  FluorescenceGrade,
+  DiamondOrigin,
+  CertificationLab
 } from '../types/diamond';
 
 interface PredictorWizardProps {
@@ -224,13 +224,12 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
               <div key={s.num} className="relative z-10 flex flex-col items-center">
                 <button
                   onClick={() => setCurrentStep(s.num)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                    isCurrent
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${isCurrent
                       ? 'gold-gradient text-charcoal-900 shadow-gold-glow scale-110'
                       : isDone
-                      ? 'bg-charcoal-900 text-white'
-                      : 'bg-white border border-cream-400 text-charcoal-400 hover:border-gold-400'
-                  }`}
+                        ? 'bg-charcoal-900 text-white'
+                        : 'bg-white border border-cream-400 text-charcoal-400 hover:border-gold-400'
+                    }`}
                 >
                   {isDone ? <Check className="w-4 h-4" /> : s.num}
                 </button>
@@ -245,7 +244,7 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
 
       {/* Main Glass Form Container */}
       <div className="glass-panel p-6 sm:p-10 rounded-luxury-lg shadow-luxury-lg border border-gold-300/40 relative">
-        
+
         {/* Step 1: Basic Diamond Information */}
         {currentStep === 1 && (
           <div className="space-y-8 animate-fadeIn">
@@ -270,11 +269,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
                     key={orig.type}
                     type="button"
                     onClick={() => setFormData({ ...formData, diamond_type: orig.type as DiamondOrigin })}
-                    className={`p-4 rounded-xl border text-left transition-all ${
-                      formData.diamond_type === orig.type
+                    className={`p-4 rounded-xl border text-left transition-all ${formData.diamond_type === orig.type
                         ? 'border-gold-500 bg-gold-50/50 shadow-sm'
                         : 'border-cream-300 bg-white hover:border-cream-400'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm text-charcoal-900">{orig.type}</span>
@@ -331,11 +329,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
                     key={preset}
                     type="button"
                     onClick={() => handleCaratChange(preset)}
-                    className={`text-xs px-2.5 py-1 rounded-md border font-medium transition-colors ${
-                      formData.carat === preset
+                    className={`text-xs px-2.5 py-1 rounded-md border font-medium transition-colors ${formData.carat === preset
                         ? 'bg-charcoal-900 text-gold-400 border-charcoal-900'
                         : 'bg-white border-cream-300 text-charcoal-600 hover:bg-cream-200'
-                    }`}
+                      }`}
                   >
                     {preset.toFixed(2)} ct
                   </button>
@@ -354,11 +351,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
                     key={s.name}
                     type="button"
                     onClick={() => setFormData({ ...formData, shape: s.name })}
-                    className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5 ${
-                      formData.shape === s.name
+                    className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5 ${formData.shape === s.name
                         ? 'border-gold-500 bg-gold-50/60 shadow-sm scale-105'
                         : 'border-cream-300 bg-white hover:border-cream-400 hover:bg-cream-50'
-                    }`}
+                      }`}
                   >
                     <div className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center text-charcoal-700 font-serif font-bold text-xs">
                       {s.name[0]}
@@ -399,11 +395,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
                     key={c.grade}
                     type="button"
                     onClick={() => setFormData({ ...formData, cut: c.grade })}
-                    className={`p-3 rounded-xl border text-left transition-all ${
-                      formData.cut === c.grade
+                    className={`p-3 rounded-xl border text-left transition-all ${formData.cut === c.grade
                         ? 'border-gold-500 bg-gold-50/70 shadow-sm'
                         : 'border-cream-300 bg-white hover:border-cream-400'
-                    }`}
+                      }`}
                   >
                     <div className="font-bold text-xs text-charcoal-900">{c.grade}</div>
                     <p className="text-[10px] text-charcoal-500 mt-1 leading-snug">{c.desc}</p>
@@ -429,11 +424,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
                     key={col.grade}
                     type="button"
                     onClick={() => setFormData({ ...formData, color: col.grade })}
-                    className={`py-2 px-1 rounded-lg border text-center transition-all ${
-                      formData.color === col.grade
+                    className={`py-2 px-1 rounded-lg border text-center transition-all ${formData.color === col.grade
                         ? 'border-gold-500 bg-gold-500 text-white font-bold shadow-sm'
                         : 'border-cream-300 bg-white text-charcoal-700 hover:border-cream-400 hover:bg-cream-50'
-                    }`}
+                      }`}
                   >
                     <div className="text-xs font-bold">{col.grade}</div>
                     <div className="text-[9px] opacity-80">{col.tier.split(' ')[0]}</div>
@@ -462,11 +456,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
                     key={cl.grade}
                     type="button"
                     onClick={() => setFormData({ ...formData, clarity: cl.grade })}
-                    className={`p-2.5 rounded-lg border text-left transition-all ${
-                      formData.clarity === cl.grade
+                    className={`p-2.5 rounded-lg border text-left transition-all ${formData.clarity === cl.grade
                         ? 'border-gold-500 bg-gold-50/70 shadow-sm'
                         : 'border-cream-300 bg-white hover:border-cream-400'
-                    }`}
+                      }`}
                   >
                     <span className="text-xs font-bold text-charcoal-900">{cl.grade}</span>
                     <p className="text-[9px] text-charcoal-400 line-clamp-1 mt-0.5">{cl.desc.split(':')[0]}</p>
@@ -542,11 +535,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
                     key={fl}
                     type="button"
                     onClick={() => setFormData({ ...formData, fluorescence: fl as FluorescenceGrade })}
-                    className={`py-3 px-2 rounded-xl border text-center transition-all ${
-                      formData.fluorescence === fl
+                    className={`py-3 px-2 rounded-xl border text-center transition-all ${formData.fluorescence === fl
                         ? 'border-gold-500 bg-gold-50 font-bold text-charcoal-900 shadow-sm'
                         : 'border-cream-300 bg-white text-charcoal-600 hover:border-cream-400'
-                    }`}
+                      }`}
                   >
                     <span className="text-xs">{fl}</span>
                   </button>
@@ -713,11 +705,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
                     key={lab}
                     type="button"
                     onClick={() => setFormData({ ...formData, certification: lab as CertificationLab })}
-                    className={`py-3 px-2 rounded-xl border text-center transition-all ${
-                      formData.certification === lab
+                    className={`py-3 px-2 rounded-xl border text-center transition-all ${formData.certification === lab
                         ? 'border-gold-500 bg-gold-50 font-bold text-charcoal-900 shadow-sm'
                         : 'border-cream-300 bg-white text-charcoal-600 hover:border-cream-400'
-                    }`}
+                      }`}
                   >
                     <span className="text-xs">{lab}</span>
                   </button>
