@@ -11,7 +11,7 @@ import { UserDashboard } from './components/UserDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
 import { ValuationReportModal } from './components/ValuationReportModal';
 import { Footer } from './components/Footer';
-import { PredictionResult, SavedDiamond } from './types/diamond';
+import { PredictionResult, SavedDiamond, DiamondInput } from './types/diamond';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('home');
@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [savedDiamonds, setSavedDiamonds] = useState<SavedDiamond[]>([]);
   const [comparisonList, setComparisonList] = useState<PredictionResult[]>([]);
   const [reportModalOpen, setReportModalOpen] = useState<boolean>(false);
+  const [predictorPrefill, setPredictorPrefill] = useState<Partial<DiamondInput> | null>(null);
 
   // Load history & saved diamonds from backend or localStorage on mount
   useEffect(() => {
@@ -90,6 +91,14 @@ export const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleNavigateToFullPredictor = (prefillData?: Partial<DiamondInput>) => {
+    if (prefillData) {
+      setPredictorPrefill(prefillData);
+    }
+    setActiveTab('predictor');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-cream-100 text-charcoal-800 selection:bg-gold-500 selection:text-white">
       {/* Sticky Luxury Navbar */}
@@ -122,10 +131,7 @@ export const App: React.FC = () => {
             <div className="border-t border-cream-300/80 bg-cream-50/50 py-12">
               <QuickCalculator
                 currency={currency}
-                onNavigateToFullPredictor={() => {
-                  setActiveTab('predictor');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onNavigateToFullPredictor={handleNavigateToFullPredictor}
               />
             </div>
           </div>
@@ -136,6 +142,7 @@ export const App: React.FC = () => {
             <PredictorWizard
               onPredictionComplete={handlePredictionComplete}
               currency={currency}
+              prefillData={predictorPrefill}
             />
           </div>
         )}
@@ -160,10 +167,7 @@ export const App: React.FC = () => {
           <div className="py-6">
             <QuickCalculator
               currency={currency}
-              onNavigateToFullPredictor={() => {
-                setActiveTab('predictor');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onNavigateToFullPredictor={handleNavigateToFullPredictor}
             />
           </div>
         )}

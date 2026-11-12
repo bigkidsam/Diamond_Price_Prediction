@@ -13,10 +13,52 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ currency }) => {
 
   useEffect(() => {
     fetch('/api/market-insights')
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then((json) => setData(json))
       .catch((err) => console.error('Error fetching market insights:', err));
   }, []);
+
+  const originMultiplier = selectedOrigin === 'Lab-Grown' ? 0.35 : 1.0;
+  const shapeMultiplier =
+    selectedShape === 'Round'
+      ? 1.0
+      : selectedShape === 'Oval'
+      ? 1.06
+      : selectedShape === 'Princess'
+      ? 0.9
+      : selectedShape === 'Cushion'
+      ? 0.93
+      : 1.0;
+
+  const summary = data?.summary ?? {
+    average_price: 3932.8,
+    average_carat: 0.8,
+    popular_shape: 'Round',
+    popular_carat_range: '0.70 - 1.20 ct',
+    annual_price_change: '+4.2%',
+    natural_index_movement: '+3.8%',
+    lab_grown_price_movement: '-14.5%',
+  };
+
+  const priceByCarat = data?.price_by_carat ?? [
+    { carat: '0.30 - 0.49 ct', avg_price: 820, price_per_carat: 2050 },
+    { carat: '0.50 - 0.69 ct', avg_price: 1850, price_per_carat: 3080 },
+    { carat: '0.70 - 0.99 ct', avg_price: 3620, price_per_carat: 4250 },
+    { carat: '1.00 - 1.49 ct', avg_price: 7890, price_per_carat: 6310 },
+    { carat: '1.50 - 1.99 ct', avg_price: 14200, price_per_carat: 8110 },
+    { carat: '2.00 - 2.99 ct', avg_price: 24500, price_per_carat: 9800 },
+  ];
+  const maxCaratAvg = Math.max(...priceByCarat.map((r) => r.avg_price), 1);
+
+  const shapeColors = ['bg-gold-500', 'bg-gold-400', 'bg-charcoal-700', 'bg-charcoal-500', 'bg-charcoal-400', 'bg-cream-400'];
+  const shapeDistribution = (data?.shape_distribution ?? [
+    { shape: 'Round', market_share: 68.2, avg_price: 4120 },
+    { shape: 'Oval', market_share: 11.4, avg_price: 4380 },
+    { shape: 'Princess', market_share: 8.5, avg_price: 3690 },
+    { shape: 'Cushion', market_share: 5.1, avg_price: 3850 },
+    { shape: 'Emerald', market_share: 3.8, avg_price: 4210 },
+    { shape: 'Pear & Others', market_share: 3.0, avg_price: 3540 },
+  ]).filter((s) => selectedShape === 'All' || s.shape.toLowerCase().includes(selectedShape.toLowerCase()));
 
   const formatCurrency = (amount: number) => {
     const symbol = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'INR' ? '₹' : '$';
@@ -45,9 +87,11 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ currency }) => {
             <span>Average Specimen Price</span>
             <DollarSign className="w-4 h-4 text-gold-600" />
           </div>
-          <p className="text-2xl font-bold text-charcoal-900 font-serif">{formatCurrency(3932.80)}</p>
+          <p className="text-2xl font-bold text-charcoal-900 font-serif">
+            {formatCurrency(summary.average_price * originMultiplier * shapeMultiplier)}
+          </p>
           <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" /> +4.2% YoY Weighted Change
+            <TrendingUp className="w-3 h-3" /> {summary.annual_price_change} YoY Weighted Change
           </span>
         </div>
 
@@ -56,8 +100,8 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ currency }) => {
             <span>Average Carat Size</span>
             <Layers className="w-4 h-4 text-gold-600" />
           </div>
-          <p className="text-2xl font-bold text-charcoal-900 font-serif">0.80 ct</p>
-          <span className="text-[11px] text-charcoal-500">Most Liquid: 0.70 – 1.20 ct</span>
+          <p className="text-2xl font-bold text-charcoal-900 font-serif">{summary.average_carat.toFixed(2)} ct</p>
+          <span className="text-[11px] text-charcoal-500">Most Liquid: {summary.popular_carat_range}</span>
         </div>
 
         <div className="glass-panel p-5 rounded-luxury border border-cream-300 space-y-1">
@@ -65,7 +109,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ currency }) => {
             <span>Natural Mined Index</span>
             <TrendingUp className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl font-bold text-emerald-700 font-serif">+3.8%</p>
+          <p className="text-2xl font-bold text-emerald-700 font-serif">{summary.natural_index_movement}</p>
           <span className="text-[11px] text-charcoal-500">Stable geological scarcity</span>
         </div>
 
@@ -74,7 +118,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ currency }) => {
             <span>Lab-Grown Index</span>
             <TrendingDown className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="text-2xl font-bold text-amber-700 font-serif">-14.5%</p>
+          <p className="text-2xl font-bold text-amber-700 font-serif">{summary.lab_grown_price_movement}</p>
           <span className="text-[11px] text-charcoal-500">CVD supply manufacturing curve</span>
         </div>
       </div>
@@ -127,28 +171,30 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ currency }) => {
               <h3 className="font-bold text-base text-charcoal-900 font-serif">Price per Carat Escalation Curve</h3>
               <p className="text-xs text-charcoal-500">Benchmark rate progression by weight bracket</p>
             </div>
-            <span className="text-xs font-bold text-gold-700 bg-gold-50 px-2 py-1 rounded">Mined Baseline</span>
+            <span className="text-xs font-bold text-gold-700 bg-gold-50 px-2 py-1 rounded">
+              {selectedOrigin === 'Lab-Grown' ? 'Lab-Grown Benchmark' : 'Mined Baseline'}
+            </span>
           </div>
 
           <div className="space-y-3 pt-2">
-            {[
-              { carat: '0.30 - 0.49 ct', avg: 820, perCarat: 2050, pct: 21 },
-              { carat: '0.50 - 0.69 ct', avg: 1850, perCarat: 3080, pct: 31 },
-              { carat: '0.70 - 0.99 ct', avg: 3620, perCarat: 4250, pct: 43 },
-              { carat: '1.00 - 1.49 ct', avg: 7890, perCarat: 6310, pct: 64 },
-              { carat: '1.50 - 1.99 ct', avg: 14200, perCarat: 8110, pct: 82 },
-              { carat: '2.00 - 2.99 ct', avg: 24500, perCarat: 9800, pct: 100 },
-            ].map((row) => (
-              <div key={row.carat} className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-charcoal-800">{row.carat}</span>
-                  <span className="font-bold text-charcoal-900">{formatCurrency(row.avg)} ({formatCurrency(row.perCarat)}/ct)</span>
+            {priceByCarat.map((row) => {
+              const adjAvg = Math.round(row.avg_price * originMultiplier * shapeMultiplier);
+              const adjPerCarat = Math.round(row.price_per_carat * originMultiplier * shapeMultiplier);
+              const pct = Math.max(10, Math.round((row.avg_price / maxCaratAvg) * 100));
+              return (
+                <div key={row.carat} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-charcoal-800">{row.carat}</span>
+                    <span className="font-bold text-charcoal-900">
+                      {formatCurrency(adjAvg)} ({formatCurrency(adjPerCarat)}/ct)
+                    </span>
+                  </div>
+                  <div className="w-full bg-cream-200 h-2 rounded-full overflow-hidden">
+                    <div className="gold-gradient h-full rounded-full" style={{ width: `${pct}%` }} />
+                  </div>
                 </div>
-                <div className="w-full bg-cream-200 h-2 rounded-full overflow-hidden">
-                  <div className="gold-gradient h-full rounded-full" style={{ width: `${row.pct}%` }} />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -160,21 +206,16 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ currency }) => {
           </div>
 
           <div className="space-y-3">
-            {[
-              { shape: 'Round Brilliant', share: 68.2, color: 'bg-gold-500' },
-              { shape: 'Oval Cut', share: 11.4, color: 'bg-gold-400' },
-              { shape: 'Princess Cut', share: 8.5, color: 'bg-charcoal-700' },
-              { shape: 'Cushion Cut', share: 5.1, color: 'bg-charcoal-500' },
-              { shape: 'Emerald Cut', share: 3.8, color: 'bg-charcoal-400' },
-              { shape: 'Pear & Others', share: 3.0, color: 'bg-cream-400' },
-            ].map((s) => (
+            {shapeDistribution.map((s, idx) => (
               <div key={s.shape} className="space-y-1">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-charcoal-800">{s.shape}</span>
-                  <span className="text-charcoal-900">{s.share}%</span>
+                  <span className="text-charcoal-900">
+                    {s.market_share}% · Avg {formatCurrency(s.avg_price * originMultiplier)}
+                  </span>
                 </div>
                 <div className="w-full bg-cream-200 h-2 rounded-full overflow-hidden">
-                  <div className={`${s.color} h-full rounded-full`} style={{ width: `${s.share}%` }} />
+                  <div className={`${shapeColors[idx % shapeColors.length]} h-full rounded-full`} style={{ width: `${s.market_share}%` }} />
                 </div>
               </div>
             ))}

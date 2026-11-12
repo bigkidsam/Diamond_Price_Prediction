@@ -27,10 +27,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ predictionHistor
 
   useEffect(() => {
     fetch('/api/model/metrics')
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then((json) => setMetrics(json))
       .catch((err) => console.error('Error loading model metrics:', err));
   }, []);
+
+  const r2Score = metrics?.r2_score ?? 0.98125;
+  const rmseValue = metrics?.rmse ?? 548.26;
+  const maeValue = metrics?.mae ?? 264.73;
+  const datasetSize = metrics?.training_dataset_size ?? 53920;
+  const isModelActive = metrics ? metrics.status === 'active' : true;
+  const numericFeatures = (metrics?.features_used ?? ['carat', 'depth', 'table', 'x', 'y', 'z', 'volume']).filter(
+    (f) => !['cut', 'color', 'clarity'].includes(f)
+  );
 
   const sampleDatasetPreview = [
     { carat: 0.23, cut: 'Ideal', color: 'E', clarity: 'SI2', depth: 61.5, table: 55.0, price: 326, x: 3.95, y: 3.98, z: 2.43 },
@@ -64,9 +73,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ predictionHistor
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-300 flex items-center gap-1.5">
+          <span
+            className={`px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1.5 ${
+              isModelActive
+                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                : 'bg-amber-100 text-amber-800 border-amber-300'
+            }`}
+          >
             <Activity className="w-3.5 h-3.5" />
-            <span>Random Forest Active</span>
+            <span>{isModelActive ? 'Random Forest Active' : 'Model Offline'}</span>
           </span>
         </div>
       </div>
@@ -104,49 +119,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ predictionHistor
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="glass-panel p-5 rounded-luxury border border-cream-300 space-y-1">
               <span className="text-[11px] text-charcoal-400 font-semibold uppercase">R² Determination Score</span>
-              <p className="text-3xl font-bold text-charcoal-900 font-serif">0.98125</p>
-              <span className="text-[11px] text-emerald-700 font-semibold">98.1% Variance Explained</span>
+              <p className="text-3xl font-bold text-charcoal-900 font-serif">{r2Score.toFixed(5)}</p>
+              <span className="text-[11px] text-emerald-700 font-semibold">{(r2Score * 100).toFixed(1)}% Variance Explained</span>
             </div>
 
             <div className="glass-panel p-5 rounded-luxury border border-cream-300 space-y-1">
               <span className="text-[11px] text-charcoal-400 font-semibold uppercase">Root Mean Square Error (RMSE)</span>
-              <p className="text-3xl font-bold text-gold-700 font-serif">$548.26</p>
+              <p className="text-3xl font-bold text-gold-700 font-serif">${rmseValue.toFixed(2)}</p>
               <span className="text-[11px] text-charcoal-500">Cross-Validated Residual Spread</span>
             </div>
 
             <div className="glass-panel p-5 rounded-luxury border border-cream-300 space-y-1">
               <span className="text-[11px] text-charcoal-400 font-semibold uppercase">Mean Absolute Error (MAE)</span>
-              <p className="text-3xl font-bold text-charcoal-900 font-serif">$264.73</p>
+              <p className="text-3xl font-bold text-charcoal-900 font-serif">${maeValue.toFixed(2)}</p>
               <span className="text-[11px] text-charcoal-500">Average Dollar Deviation</span>
             </div>
 
             <div className="glass-panel p-5 rounded-luxury border border-cream-300 space-y-1">
               <span className="text-[11px] text-charcoal-400 font-semibold uppercase">Training Records</span>
-              <p className="text-3xl font-bold text-charcoal-900 font-serif">53,920</p>
+              <p className="text-3xl font-bold text-charcoal-900 font-serif">{datasetSize.toLocaleString('en-US')}</p>
               <span className="text-[11px] text-charcoal-500">Zero-dimension Outliers Cleaned</span>
             </div>
           </div>
 
           {/* Model Specs Card */}
           <div className="glass-panel p-6 rounded-luxury border border-cream-300 space-y-4">
-            <h3 className="font-bold text-base text-charcoal-900 font-serif">Active Production Pipeline Specification</h3>
+            <h3 className="font-bold text-base text-charcoal-900 font-serif">
+              Active Production Pipeline Specification ({metrics?.version ? `v${metrics.version}` : 'v1.0'})
+            </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div className="bg-white p-4 rounded-xl border border-cream-300 space-y-2">
                 <span className="font-bold text-charcoal-900">1. Preprocessor Architecture (ColumnTransformer)</span>
                 <ul className="text-charcoal-600 space-y-1 list-disc list-inside">
-                  <li><strong>StandardScaler:</strong> [Carat(Weight of Daimond), depth, table, x, y, z, volume]</li>
+                  <li><strong>StandardScaler:</strong> [{numericFeatures.join(', ')}]</li>
                   <li><strong>OneHotEncoder:</strong> [cut, color, clarity]</li>
-                  <li><strong>Engineered Dimensions:</strong> Spatial 3D Volume ($x \times y \times z$)</li>
+                  <li><strong>Engineered Dimensions:</strong> Spatial 3D Volume (x × y × z)</li>
                 </ul>
               </div>
 
               <div className="bg-white p-4 rounded-xl border border-cream-300 space-y-2">
                 <span className="font-bold text-charcoal-900">2. Regressor Architecture</span>
                 <ul className="text-charcoal-600 space-y-1 list-disc list-inside">
-                  <li><strong>Algorithm:</strong> RandomForestRegressor (Scikit-Learn Ensemble)</li>
-                  <li><strong>Hyperparameters:</strong> n_estimators=200, random_state=42, n_jobs=-1</li>
-                  <li><strong>Artifact Storage:</strong> diamond_price_model.pkl (683 MB Serialized Binary)</li>
+                  <li><strong>Algorithm:</strong> {metrics?.algorithm ?? 'RandomForestRegressor'} (Scikit-Learn Ensemble)</li>
+                  <li><strong>Hyperparameters:</strong> n_estimators={metrics?.n_estimators ?? 200}, random_state=42, n_jobs=-1</li>
+                  <li><strong>Artifact Storage:</strong> diamond_price_model.pkl ({metrics?.training_date ?? 'Active Artifact'})</li>
                 </ul>
               </div>
             </div>
@@ -242,8 +259,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ predictionHistor
                     <td className="p-3 text-charcoal-500">{log.timestamp}</td>
                     <td className="p-3 font-bold">{log.carat} ct</td>
                     <td className="p-3">{log.cut} · {log.color} · {log.clarity}</td>
-                    <td className="p-3 font-bold text-gold-700">${log.estimated_price}</td>
-                    <td className="p-3 font-semibold text-emerald-700">{log.confidence}</td>
+                    <td className="p-3 font-bold text-gold-700">${log.estimated_price ?? log.predicted_price ?? 0}</td>
+                    <td className="p-3 font-semibold text-emerald-700">{log.confidence ?? 'High'}</td>
                   </tr>
                 ))}
               </tbody>

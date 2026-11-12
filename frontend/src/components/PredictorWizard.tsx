@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   HelpCircle,
@@ -31,11 +31,22 @@ import {
 interface PredictorWizardProps {
   onPredictionComplete: (predictionData: any) => void;
   currency: string;
+  prefillData?: Partial<DiamondInput> | null;
 }
+
+const estimateDimensionsForCarat = (caratVal: number) => {
+  const factor = Math.cbrt(caratVal / 1.0);
+  return {
+    x: parseFloat((6.45 * factor).toFixed(2)),
+    y: parseFloat((6.48 * factor).toFixed(2)),
+    z: parseFloat((3.98 * factor).toFixed(2)),
+  };
+};
 
 export const PredictorWizard: React.FC<PredictorWizardProps> = ({
   onPredictionComplete,
   currency,
+  prefillData,
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
@@ -60,6 +71,16 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
     certification: 'GIA',
     certificate_number: '2235918234',
   } as any);
+
+  useEffect(() => {
+    if (!prefillData) return;
+    const dims = prefillData.carat ? estimateDimensionsForCarat(prefillData.carat) : {};
+    setFormData((prev) => ({
+      ...prev,
+      ...prefillData,
+      ...dims,
+    }));
+  }, [prefillData]);
 
   // Image Upload state
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -135,16 +156,10 @@ export const PredictorWizard: React.FC<PredictorWizardProps> = ({
 
   // Carat slider handler that synchronizes realistic default dimensions
   const handleCaratChange = (caratVal: number) => {
-    const factor = Math.cbrt(caratVal / 1.0);
-    const newX = parseFloat((6.45 * factor).toFixed(2));
-    const newY = parseFloat((6.48 * factor).toFixed(2));
-    const newZ = parseFloat((3.98 * factor).toFixed(2));
     setFormData((prev) => ({
       ...prev,
       carat: caratVal,
-      x: newX,
-      y: newY,
-      z: newZ,
+      ...estimateDimensionsForCarat(caratVal),
     }));
   };
 
