@@ -1,5 +1,6 @@
 # 💎 DiamondIQ — AI-Powered Diamond Valuation & Intelligence Platform
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Online-success?style=for-the-badge&logo=render&logoColor=white)](https://diamond-price-prediction-m85b.onrender.com)
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
@@ -9,6 +10,8 @@
 [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+> 🚀 **Live Production Application:** **[https://diamond-price-prediction-m85b.onrender.com](https://diamond-price-prediction-m85b.onrender.com)**
+> 
 > An end-to-end Machine Learning web application delivering algorithmic diamond appraisals with **$R^2 \approx 0.981$** accuracy across **53,920 gemological transaction records**. Features a luxury **React/TypeScript** frontend, high-performance **FastAPI** backend, explainable feature attributions, PDF certificate generation, and **Docker** containerization.
 
 ---
