@@ -2,6 +2,11 @@
 *.pkl
 !diamond_price_model.pkl
 
+# Node
+node_modules/
+frontend/node_modules/
+.npm
+
 # Python
 __pycache__/
 *.py[cod]
