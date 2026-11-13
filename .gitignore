@@ -1,6 +1,6 @@
-# Model Artifacts (large files)
+# Model Artifacts (allow production model under 100MB)
 *.pkl
-diamond_price_model.pkl
+!diamond_price_model.pkl
 
 # Python
 __pycache__/

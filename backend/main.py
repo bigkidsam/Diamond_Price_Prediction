@@ -187,6 +187,10 @@ class HistoryResponse(PredictionResponse):
 # Static Files & Frontend Paths
 # -------------------------------------------------------------
 candidate_frontend_dirs = [
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "frontend", "dist")),
+    os.path.abspath("frontend/dist"),
+    os.path.abspath("/app/frontend/dist"),
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend")),
     os.path.abspath(os.path.join(os.path.dirname(__file__), "frontend")),
     os.path.abspath("frontend"),
@@ -199,8 +203,11 @@ for f_dir in candidate_frontend_dirs:
         frontend_dir = f_dir
         break
 
-# Mount frontend directory for static assets (style.css, script.js)
+# Mount frontend assets and static directories
 if frontend_dir:
+    assets_dir = os.path.join(frontend_dir, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 # -------------------------------------------------------------
@@ -211,7 +218,7 @@ def read_root(request: Request):
     """Serve frontend index.html if present, else JSON welcome info"""
     if frontend_dir:
         index_path = os.path.join(frontend_dir, "index.html")
-        if os.path.exists(index_path) and "text/html" in request.headers.get("accept", ""):
+        if os.path.exists(index_path):
             return FileResponse(index_path)
     return {
         "message": "Welcome to Diamond Price Predictor API",

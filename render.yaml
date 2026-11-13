@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: diamond-price-prediction
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r backend/requirements.txt && cd frontend && npm install && npm run build"
+    startCommand: "uvicorn main:app --app-dir backend --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: FASTAPI_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: "*"
