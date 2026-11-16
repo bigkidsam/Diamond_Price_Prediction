@@ -206,6 +206,17 @@ docker-compose down
 
 ---
 
+## ☁️ Cloud Deployment (Render Platform)
+
+The application is deployed live in production on Render's container platform:
+
+* **Live URL:** [https://diamond-price-prediction-m85b.onrender.com](https://diamond-price-prediction-m85b.onrender.com)
+* **Automated Blueprint:** Configured via `render.yaml` with continuous deployment on push to `main`.
+* **Zero-CORS Unified Routing:** FastAPI natively serves the compiled React production bundle (`frontend/dist`) alongside `/api/*` routes under a single domain.
+* **Low-Memory Cloud Footprint:** The Random Forest model was pruned and compressed from 651 MB (338 MB RAM) down to **6.5 MB (9 MB RAM)**, operating with sub-100ms latency within Render's 512 MB free tier.
+
+---
+
 ## 🔌 API Endpoints Reference
 
 | Method | Endpoint | Description | Sample Response / Payload |
