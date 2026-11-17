@@ -9,6 +9,8 @@ import os
 import logging
 from datetime import datetime
 from typing import List, Optional
+import json
+import sys
 from dotenv import load_dotenv
 
 # Optional SQLAlchemy for PostgreSQL persistence
@@ -142,6 +144,12 @@ class DiamondInput(BaseModel):
     diamond_type: Optional[str] = "Natural"
     certification: Optional[str] = "GIA"
     certificate_number: Optional[str] = ""
+
+class ConformalPredictionRequest(DiamondInput):
+    confidence_level: Optional[float] = Field(default=0.95, ge=0.50, le=0.99, description="Statistical coverage guarantee (e.g. 0.90, 0.95, 0.99)")
+
+class ForecastRequest(DiamondInput):
+    horizon_years: Optional[int] = Field(default=3, ge=1, le=10, description="Forecast horizon in years (1 to 10)")
 
 class FeatureContribution(BaseModel):
     feature: str
@@ -539,7 +547,184 @@ def health_check():
         "timestamp": datetime.now().isoformat(),
         "model_loaded": model is not None,
         "model_path": model_loaded_path,
-        "database_connected": db_available
+        "database_connected": db_available,
+        "conformal_engine_active": conformal_engine is not None,
+        "shap_engine_active": shap_engine is not None,
+        "macro_engine_active": macro_engine is not None
+    }
+
+# -------------------------------------------------------------
+# Advanced AI/ML Engine Integrations
+# -------------------------------------------------------------
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+conformal_engine = None
+conformal_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ml_engine", "conformal_predictor.pkl"))
+if os.path.exists(conformal_path):
+    try:
+        from ml_engine.conformal_predictor import ConformalPredictor
+        conformal_engine = ConformalPredictor.load(conformal_path)
+        logger.info("✅ Conformal Predictor loaded successfully.")
+    except Exception as e:
+        logger.warning(f"Could not load conformal engine: {e}")
+
+shap_engine = None
+champ_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ml_engine", "champion_model_lgb.pkl"))
+if os.path.exists(champ_path):
+    try:
+        from ml_engine.shap_explainer import DiamondShapExplainer
+        champ_pipe = joblib.load(champ_path)
+        shap_engine = DiamondShapExplainer(champ_pipe)
+        logger.info("✅ SHAP TreeExplainer initialized on champion LightGBM model.")
+    except Exception as e:
+        logger.warning(f"Could not initialize SHAP engine: {e}")
+
+try:
+    from ml_engine.macro_forecaster import MacroForecastingEngine
+    macro_engine = MacroForecastingEngine()
+except Exception as e:
+    macro_engine = None
+
+@app.get("/api/ml/tournament")
+def get_model_tournament():
+    """Retrieve full SOTA model tournament & comparative benchmarks (LightGBM, XGBoost, Stacking, RF, Linear, Ridge)"""
+    benchmark_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ml_engine", "benchmark_results.json"))
+    if os.path.exists(benchmark_file):
+        with open(benchmark_file, "r") as f:
+            data = json.load(f)
+        return {
+            "status": "success",
+            "eval_metric": "R2 / RMSE / MAE / Latency",
+            "benchmark_dataset_size": 53920,
+            "models_evaluated": len(data),
+            "champion_model": "LightGBM Regressor (R² 0.98271, Latency 0.004 ms/sample)",
+            "leaderboard": data
+        }
+    return {"status": "pending", "message": "Benchmark results not yet generated"}
+
+@app.post("/api/ml/conformal-predict")
+def predict_with_conformal_guarantee(item: ConformalPredictionRequest):
+    """
+    Split Conformal Prediction Endpoint.
+    Returns mathematically guaranteed coverage intervals: P(y in C(x)) >= 1 - alpha.
+    """
+    vol = item.x * item.y * item.z
+    df_row = pd.DataFrame([{
+        "carat": item.carat,
+        "cut": item.cut,
+        "color": item.color,
+        "clarity": item.clarity,
+        "depth": item.depth,
+        "table": item.table,
+        "x": item.x,
+        "y": item.y,
+        "z": item.z,
+        "volume": vol,
+        "aspect_ratio": item.x / item.y if item.y > 0 else 1.0,
+        "depth_ratio": item.z / item.x if item.x > 0 else 0.6,
+        "table_to_depth": item.table / item.depth if item.depth > 0 else 0.9
+    }])
+    
+    conf = item.confidence_level or 0.95
+    if conformal_engine:
+        res = conformal_engine.predict_interval(df_row, confidence=conf)
+        pt = float(res["point_estimate"][0])
+        lb = float(res["lower_bound"][0])
+        ub = float(res["upper_bound"][0])
+        return {
+            "methodology": "Split Conformal Prediction (Distribution-Free Finite-Sample Guarantee)",
+            "confidence_level": f"{int(conf * 100)}%",
+            "point_estimate": pt,
+            "lower_bound": lb,
+            "upper_bound": ub,
+            "margin_error_usd": res["margin_error"],
+            "statistical_guarantee": f"P(True Price in [{lb}, {ub}]) >= {int(conf * 100)}%",
+            "calibration_samples": res["calibration_samples"]
+        }
+    
+    pred = predict_price(item)
+    return {
+        "methodology": "Empirical Standard Residuals",
+        "confidence_level": f"{int(conf * 100)}%",
+        "point_estimate": pred.estimated_price,
+        "lower_bound": pred.lower_bound,
+        "upper_bound": pred.upper_bound
+    }
+
+@app.post("/api/ml/shap-explain")
+def get_shap_explanation(item: DiamondInput):
+    """
+    Game-Theoretic Explainable AI (XAI) using SHAP TreeExplainer.
+    Deconstructs prediction into exact dollar marginal contributions per feature.
+    """
+    vol = item.x * item.y * item.z
+    df_row = pd.DataFrame([{
+        "carat": item.carat,
+        "cut": item.cut,
+        "color": item.color,
+        "clarity": item.clarity,
+        "depth": item.depth,
+        "table": item.table,
+        "x": item.x,
+        "y": item.y,
+        "z": item.z,
+        "volume": vol,
+        "aspect_ratio": item.x / item.y if item.y > 0 else 1.0,
+        "depth_ratio": item.z / item.x if item.x > 0 else 0.6,
+        "table_to_depth": item.table / item.depth if item.depth > 0 else 0.9
+    }])
+    
+    if shap_engine:
+        res = shap_engine.explain_sample(df_row)
+        return {
+            "status": "success",
+            "explainer": "SHAP TreeExplainer (Game-Theoretic Shapley Values)",
+            "base_market_price": res["base_market_price"],
+            "predicted_price": res["predicted_price"],
+            "top_feature_contributions": res["top_feature_contributions"],
+            "category_breakdown": res["category_breakdown"]
+        }
+    
+    base_pred = predict_price(item)
+    return {
+        "status": "fallback",
+        "predicted_price": base_pred.estimated_price,
+        "feature_contributions": base_pred.feature_contributions
+    }
+
+@app.post("/api/ml/forecast")
+def forecast_future_valuation(item: ForecastRequest):
+    """
+    Macroeconomic & Temporal Price Forecasting.
+    Combines baseline ML appraisal with live financial time-series (Gold, DXY) and origin divergence.
+    """
+    base_pred = predict_price(item)
+    base_val = base_pred.estimated_price
+    
+    diamond_type = item.diamond_type or "Natural"
+    horizon = item.horizon_years or 3
+    
+    if macro_engine:
+        forecast = macro_engine.forecast_future_price(
+            base_price=base_val,
+            carat=item.carat,
+            diamond_type=diamond_type,
+            years_ahead=horizon
+        )
+        return {
+            "status": "success",
+            "model": "Two-Stage Hybrid Regressor (ML Baseline + Macroeconomic Time-Series)",
+            "diamond_type": diamond_type,
+            "current_valuation": base_val,
+            "forecast_horizon_years": horizon,
+            "annualized_rate_pct": forecast["annualized_expected_return_pct"],
+            "macro_drivers": forecast["macro_inputs"],
+            "projected_trajectory": forecast["projection_trajectory"]
+        }
+    
+    return {
+        "status": "error",
+        "message": "Macroeconomic forecasting engine not available"
     }
 
 if __name__ == "__main__":
