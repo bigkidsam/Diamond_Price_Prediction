@@ -115,3 +115,75 @@ export interface ModelMetrics {
   training_date: string;
   features_used: string[];
 }
+
+export interface TournamentModel {
+  model: string;
+  r2: number;
+  rmse: number;
+  mae: number;
+  mape_pct: number;
+  train_time_sec: number;
+  latency_ms_per_sample: number;
+}
+
+export interface TournamentData {
+  status: string;
+  champion_model: string;
+  benchmark_dataset_size: number;
+  leaderboard: TournamentModel[];
+}
+
+export interface ShapContribution {
+  feature: string;
+  impact_usd: number;
+  direction: 'positive' | 'negative';
+}
+
+export interface ShapExplanationResult {
+  status: string;
+  explainer: string;
+  base_market_price: number;
+  predicted_price: number;
+  top_feature_contributions: ShapContribution[];
+  category_breakdown: {
+    carat_and_volume: number;
+    clarity: number;
+    color: number;
+    cut_and_proportions: number;
+    other_geometry: number;
+  };
+}
+
+export interface ForecastTrajectoryPoint {
+  year: number;
+  projected_price: number;
+  lower_confidence_bound: number;
+  upper_confidence_bound: number;
+  cumulative_change_pct: number;
+}
+
+export interface ForecastResult {
+  status: string;
+  model: string;
+  diamond_type: string;
+  current_valuation: number;
+  forecast_horizon_years: number;
+  annualized_rate_pct: number;
+  macro_drivers: {
+    gold_1y_return?: number;
+    usd_1y_return?: number;
+    status?: string;
+  };
+  projected_trajectory: ForecastTrajectoryPoint[];
+}
+
+export interface ConformalPredictionResult {
+  methodology: string;
+  confidence_level: string;
+  point_estimate: number;
+  lower_bound: number;
+  upper_bound: number;
+  margin_error_usd: number;
+  statistical_guarantee: string;
+  calibration_samples: number;
+}
